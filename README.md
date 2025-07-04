@@ -122,7 +122,7 @@ python play_vs_human.py
 ```
 
 ### Entorno de streamlit:
-Agregar este código al directorio raiz: 
+Agregar este código al directorio raiz como streamlit2.py
 
 ```python
 import streamlit as st
