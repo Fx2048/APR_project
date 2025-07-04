@@ -1,132 +1,157 @@
-# Simple Multi Agent Deep Reinforcement Learning Chess
+# 🔮 Ajedrez con Inteligencia Artificial
 
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![NumPy](https://img.shields.io/badge/numpy-%23013243.svg?style=for-the-badge&logo=numpy&logoColor=white)
-![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)
-<img src="https://www.pygame.org/docs/_static/pygame_tiny.png" height="35">
-[![DOI](https://zenodo.org/badge/614358049.svg)](https://zenodo.org/badge/latestdoi/614358049)
+Un proyecto de ajedrez que implementa un agente inteligente usando algoritmos de aprendizaje por refuerzo para jugar ajedrez de manera estratégica.
 
-The goal of this project is to build an environment for the game of chess and apply the Proximal Policy Optimization (PPO) algorithm to solve it using different methods. The chess environment implemented in this project will not support the en passant and castling moves.
+## 📋 Descripción del Proyecto
 
-The project will explore two different methods for applying the PPO algorithm to the chess environment. The first method will involve training two different agents with separate neural networks. These two agents will compete against each other, with each agent learning from the other's moves. This approach is known as self-play and has been shown to be effective in training game-playing agents.
+Este proyecto implementa un sistema de ajedrez con IA que se enfoca en **ganar partidas** en lugar de simplemente capturar piezas. El modelo utiliza un sistema de recompensas orientado a objetivos estratégicos como jaque, jaque mate y victoria general.
 
-The second method will involve training a single agent with a single neural network. This agent will learn to play both sides of the chessboard, meaning it will learn to play as both white and black pieces. This approach is known as joint training and has the advantage of being more computationally efficient since it only requires one agent to be trained.
-
-| Initial Agent                             | Single Agent                             | Double Agents                             |
-| ----------------------------------------- | ---------------------------------------- | ----------------------------------------- |
-| ![single_agent](results/play_initial.gif) | ![single_agent](results/play_single.gif) | ![double agents](results/play_double.gif) |
-
-## 💾 Installation
-
-```bash
-git clone git@github.com:mhyrzt/Simple-MADRL-Chess.git
-cd Simple-MADRL-Chess
-python3 -m pip install requirements.txt
-```
-
-## 🏋️ Train
-
-- you can either run default train.py file:
-
-```bash
-python3 train.py
-```
-
-- or you can create your own file:
-
+### Sistema de Recompensas
 ```python
-from chess import Chess
-from agents import SingleAgentChess, DoubleAgentsChess
-from learnings.ppo import PPO
-
-if __name__ == "__main__":
-    chess = Chess(
-        window_size=512, 
-        max_steps=128, 
-        render_mode="rgb_array"
-        # in case if you want to save episodes make sure the value is "rgb_array"
-    )
-    chess.reset()
-    
-    buffer_size = 16 # Number of Episode to store
-    ppo = PPO(
-        chess,
-        epochs=100,
-        batch_size=256,
-        buffer_size=buffer_size * 2,
-        hidden_layers=(2048,) * 4,
-    )
-    
-    print(ppo.device)
-    print(ppo)
-    print("-" * 64)
-
-    # also you can use `DoubleAgentChess` with the same parameters
-    agent = SingleAgentChess( 
-        env=chess,
-        learner=ppo,
-        episodes=40, # number of episodes to play/learn
-        train_on=buffer_size, # current episode % train on == 0 then train
-        result_folder="results",
-    )
-    agent.train(
-        render_each=10, # render and save the game into a episode_{n}.mp4 file
-        save_on_learn=True # save the stats after each learning
-    )
-    agent.save()
-    chess.close()
-
+MOVE = -1              # Penalización por movimiento (fomenta eficiencia)
+CHECK_WIN = 10         # Recompensa por dar jaque
+CHECK_LOSE = -10       # Penalización por recibir jaque
+CHECK_MATE_WIN = 100   # Recompensa máxima por jaque mate
+CHECK_MATE_LOSE = -100 # Penalización máxima por perder
 ```
 
-## 📊 Results
+## 🏗️ Arquitectura del Sistema
 
-After training your agent/agents, you can easily plot and view the results by running the following command:
+### Componentes Principales
+- **Motor de Ajedrez**: Implementación de las reglas y lógica del juego
+- **Agente IA**: Algoritmo de aprendizaje por refuerzo 
+- **Interfaz Gráfica**: Aplicación web con Streamlit
+- **Sistema de Entrenamiento**: Módulo para entrenar el modelo
 
+### Tecnologías Utilizadas
+- **Python 3.9**
+- **Streamlit 1.46.1** (interfaz web)
+- **python-chess 1.999** + **chess 1.11.2** (motor de ajedrez)
+- **PyTorch 2.7.1** (deep learning)
+- **OpenAI Gym 0.26.2** (entorno de aprendizaje por refuerzo)
+- **NumPy, Pandas, Matplotlib** (análisis de datos)
+- **OpenCV, Pygame** (visualización)
+- **Scikit-learn** (machine learning)
+
+## 🚀 Instalación y Configuración
+
+### Requisitos
 ```bash
-python3 plot.py
+# Instalar desde requirements.txt
+pip install -r requirements.txt
+
+# O instalar las dependencias principales manualmente:
+pip install streamlit==1.46.1
+pip install python-chess==1.999
+pip install chess==1.11.2
+pip install torch==2.7.1
+pip install numpy==1.24.3
+pip install pygame==2.6.1
+pip install opencv-python==4.11.0.86
+pip install matplotlib==3.9.4
+pip install pandas==2.3.0
+pip install scikit-learn==1.6.1
+pip install gym==0.26.2
 ```
 
-### 👨‍🦯 Single Agent
+### Crear Environment (Recomendado)
+```bash
+# Crear environment con conda
+conda create -n chess_ai python=3.9
+conda activate chess_ai
+pip install -r requirements.txt
 
-![single agent plots](results/SingleAgent/plots.jpeg)
-
-### ⚔ Double Agents
-
-![double agent plots](results/DoubleAgents/plots.jpeg)
-
-## 🤝 Contributing
-
-Contributions to this project are welcome. If you have any ideas or suggestions, feel free to open an issue or submit a pull request.
-
-## 🔑 License
-
-- This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-- Please note that ChatGPT, was only used to create the README.md file for this project. All other code and contributions were made solely by me and other contributors. ツ
-
-## 📚 References
-
-- [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347)
-- [Action Space Shaping in Deep Reinforcement Learning](https://arxiv.org/abs/2004.00980)
-- [Implementing action mask in proximal policy optimization (PPO) algorithm](https://www.sciencedirect.com/science/article/pii/S2405959520300746?via%3Dihub)
-- [Reward is Enough](deepmind.com/publications/reward-is-enough)
-- [Mastering Chess and Shogi by Self-Play with a General Reinforcement Learning Algorithm](https://arxiv.org/abs/1712.01815)
-
-## ⚠️ Warnings
-
-- Please note that the chess environment implemented in this project may have some bugs, particularly in the check and checkmate situations. While the environment has been designed to simulate the game of chess as accurately as possible, there may be some corner cases that have not been fully tested. We recommend using caution when interpreting the results of the agent's performance, particularly in situations where check and checkmate occur. We encourage users to report any issues they encounter to help improve the quality of the environment.
-
-## 🗣️ Citation
-
-```tex
-@misc{mahyar_riazati_2023_7789509,
-  author       = {Mahyar Riazati},
-  title        = {{Simple Multi Agent Deep Reinforcement Learning 
-                   Solution for Chess}},
-  month        = mar,
-  year         = 2023,
-  publisher    = {Zenodo},
-  version      = {1.0.0},
-  doi          = {10.5281/zenodo.7789509},
-  url          = {https://doi.org/10.5281/zenodo.7789509}
-}
+# O clonar el environment existente
+conda create --name chess_ai --clone chess_fixed
 ```
+
+### Ejecución
+```bash
+# Activar environment
+conda activate chess_fixed
+
+# Ejecutar la aplicación web
+streamlit run app.py
+
+# Alternativamente, ejecutar desde terminal
+python main.py
+```
+
+### Generar requirements.txt (si necesitas actualizarlo)
+```bash
+conda activate chess_fixed
+pip freeze > requirements.txt
+```
+
+## 🎮 Cómo Usar
+
+### Interfaz Web
+1. Ejecuta `streamlit run app.py`
+2. Abre tu navegador en `http://localhost:8501`
+3. **Nota**: La interfaz muestra el tablero como imagen, usa los controles de la terminal para realizar movimientos
+
+### Terminal
+- Utiliza la terminal para introducir movimientos
+- El formato de movimientos sigue la notación algebraica estándar
+
+## 🧠 Entrenamiento del Modelo
+
+El modelo fue entrenado utilizando:
+- **Enfoque**: Aprendizaje por refuerzo
+- **Objetivo**: Maximizar victorias, no capturas
+- **Recompensas**: Sistema balanceado que premia estrategia sobre táctica simple
+
+### Proceso de Entrenamiento
+1. Inicialización del agente
+2. Juegos de práctica contra diferentes oponentes
+3. Ajuste de parámetros basado en resultados
+4. Validación del modelo entrenado
+
+## 📊 Resultados
+
+- El modelo demostró capacidad para priorizar movimientos estratégicos
+- Enfoque en jaque mate sobre captura de piezas
+- [Agregar métricas específicas de rendimiento]
+
+## 🔧 Estructura del Código
+
+```
+proyecto/
+├── app.py              # Aplicación Streamlit
+├── main.py             # Ejecución por terminal
+├── chess_engine.py     # Motor de ajedrez
+├── ai_agent.py         # Agente de IA
+├── training.py         # Módulo de entrenamiento
+└── README.md          # Este archivo
+```
+
+## 🎯 Características Clave
+
+- ✅ Sistema de recompensas orientado a victoria
+- ✅ Interfaz web intuitiva
+- ✅ Soporte para terminal
+- ✅ Modelo entrenado con enfoque estratégico
+- ✅ Evaluación basada en jaque mate, no en material
+
+## 🚧 Limitaciones Conocidas
+
+- La interfaz Streamlit muestra el tablero como imagen (no táctil)
+- Los movimientos deben realizarse através de la terminal
+- [Otras limitaciones identificadas]
+
+## 🤝 Contribuciones
+
+Este proyecto fue desarrollado como parte de [contexto académico/profesional]. Las contribuciones principales incluyen:
+- Implementación del sistema de recompensas estratégicas
+- Desarrollo de la interfaz híbrida (web + terminal)
+- Entrenamiento del modelo con enfoque en victoria
+
+## 📝 Notas Adicionales
+
+- El modelo no busca comer piezas sino ganar partidas
+- La penalización por movimiento (-1) fomenta la eficiencia
+- Las recompensas de jaque y jaque mate guían el aprendizaje estratégico
+
+---
+
+*Desarrollado con 🧠 y ♟️*
